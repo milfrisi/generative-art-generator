@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+
+PROJECT=$(get-properties -k project)
+
+echo "Cleaning previous build..."
+rm -f -r /app/build/env
+
+echo "Creating Conda environment..."
+/opt/miniconda/bin/conda create --file /app/conf/env/requirements.txt --copy -y -p /app/build/env
+
+echo "Creating compressed environmet file: build/env.zip"
+(cd /app/build/env/ && zip -r /app/build/env.zip *)
+
+echo "Copying environment to HDFS..."
+hdfs dfs -mkdir -p $PROJECT/
+hdfs dfs -copyFromLocal -f /app/build/env.zip $PROJECT/env.zip

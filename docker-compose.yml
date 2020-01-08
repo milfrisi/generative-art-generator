@@ -1,0 +1,12 @@
+version: '3.2'
+services:
+    cmd:
+        image: artifactory.tcs.trv.cloud:9090/mpops/hadoop-cli:4.1
+        environment:
+            - EXTRA_PATH=/app/bin
+            - EXTRA_PYTHONPATH=/app/src
+        volumes:
+            - .:/app
+        working_dir: "/app"
+        command: ["froggle"]
+

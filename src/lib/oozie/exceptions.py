@@ -1,0 +1,2 @@
+class OozieError(Exception):
+    pass

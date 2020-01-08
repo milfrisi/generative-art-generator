@@ -1,0 +1,2 @@
+class KerberosError(Exception):
+    pass

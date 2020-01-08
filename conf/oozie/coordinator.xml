@@ -1,0 +1,35 @@
+<coordinator-app
+    start="${coordinatorStartDate}"
+    end="${coordinatorEndDate}"
+    frequency="${coord:days(1)}"
+    name="${project}-${user}"
+    timezone="UTC"
+    xmlns="uri:oozie:coordinator:0.2">
+
+    <datasets>
+        <dataset name="wf_sessionStatsMaster_finished" frequency="${coord:days(1)}"
+            initial-instance="${datasetStartDate}" timezone="Europe/Berlin">
+            <uri-template>
+                ${nameNode}/user/BI/trivago_analytic_prod/session_stats_master/ymd=${YEAR}${MONTH}${DAY}
+            </uri-template>
+        </dataset>
+    </datasets>
+
+    <action>
+        <workflow>
+            <app-path>/user/${user}/${project}/build</app-path>
+            <configuration>
+                <property>
+                    <name>oozie.use.system.libpath</name>
+                    <value>True</value>
+                </property>
+                <property>
+                    <name>crunchDate</name>
+                    <value>${coord:formatTime(coord:dateOffset(coord:nominalTime(),-12,'HOUR'),'yyyyMMdd')}
+                    </value>
+                </property>
+            </configuration>
+        </workflow>
+    </action>
+
+</coordinator-app>

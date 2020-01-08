@@ -1,0 +1,96 @@
+<workflow-app name="${project}-${user}" xmlns="uri:oozie:workflow:0.5">
+    <global>
+        <configuration>
+            <property>
+                <name>oozie.launcher.yarn.mapreduce.am.env</name>
+                <value>PYSPARK_ARCHIVES_PATH=pyspark.zip</value>
+            </property>
+            <property>
+                <name>oozie.action.sharelib.for.spark</name>
+                <value>spark2</value>
+            </property>
+        </configuration>
+    </global>
+
+    <credentials>
+        <credential name="hcat-trivago" type="hcat-trivago" />
+    </credentials>
+
+    <start to="entrypoint"/>
+
+    <action name="entrypoint" cred="hcat-trivago">
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>${project}-${user}</name>
+            <jar>${nameNode}/user/${user}/${project}/build/run.py</jar>
+            <spark-opts>
+                --files ${nameNode}/data/hive/hive-site.xml
+                --py-files pyspark.zip,py4j-0.10.7-src.zip
+                --jars ${nameNode}/user/kafka/lib/hive_aux_jars/protobuf-serde-sharelib-all.jar 
+                --conf spark.extraListeners=
+                --conf spark.yarn.appMasterEnv.PYSPARK_PYTHON=./CONDAENV/bin/python
+                --conf spark.executorEnv.PYSPARK_PYTHON=./CONDAENV/bin/python
+                --conf spark.sql.autoBroadcastJoinThreshold=-1
+            </spark-opts>
+            <arg>--crunch_date=${crunchDate}</arg>
+            <arg>--database=${db}</arg>
+            <arg>--src_file=${nameNode}/user/${user}/${project}/build/src.zip</arg>
+            <archive>${nameNode}/user/${user}/${project}/env.zip#CONDAENV</archive>
+        </spark>
+        <ok to="email_succeed" />
+        <error to="email_then_kill" />
+    </action>
+
+    <action name="email_succeed">
+        <email xmlns="uri:oozie:email-action:0.1">
+            <to>${emailToList}</to>
+            <subject>Successfully run: workflow ${project}-${user}</subject>
+            <body>
+                Greeeeat job!!!!!!!
+
+                In case you wanted to see the details, go to http://mgmt1.hadoop.trivago.com:8889/oozie/list_oozie_workflow/${wf:id()}/
+
+                Gruesse,
+                Oozie.
+            </body>
+        </email>
+        <ok to="end" />
+        <error to="end" />
+    </action>
+
+    <action name="email_then_kill">
+        <sub-workflow>
+            <app-path>${nameNode}/user/BI/hadoop-wf/co_genericTools/wf_sendNotification
+            </app-path>
+            <propagate-configuration/>
+            <configuration>
+                <property>
+                    <name>emailRecipient</name>
+                    <value>${emailToList}</value>
+                </property>
+                <property>
+                    <name>workflowName</name>
+                    <value>${wf:name()}</value>
+                </property>
+                <property>
+                    <name>workflowId</name>
+                    <value>${wf:id()}</value>
+                </property>
+            </configuration>
+        </sub-workflow>
+        <ok to="end" />
+        <error to="kill" />
+    </action>
+
+    <kill name="kill">
+        <message>Action failed, error
+            message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+    </kill>
+
+    <end name="end" />
+
+</workflow-app>
+

@@ -1,0 +1,30 @@
+#!/bin/bash
+
+if [[ $# -ne 0 && $# -ne 2 || ($# -eq 2 && $1 != "-m") ]]; then
+    echo -e "Usage: $0 [-m <release-string>]"
+    exit 1
+fi
+
+set -e
+
+USER=$(get-properties -k user)
+PROJECT=$(get-properties -k project)
+RELEASE=$2
+
+echo "Creating source code archive: src.zip"
+(cd /app/src && zip -r --exclude='*__pycache__*' /app/build/src.zip *)
+
+echo "Copying source code archive to HDFS..."
+hdfs dfs -mkdir -p $PROJECT/build/
+hdfs dfs -copyFromLocal -f /app/build/src.zip $PROJECT/build/
+
+echo "Copying Oozie files to HDFS..."
+hdfs dfs -copyFromLocal -f /app/conf/oozie/* $PROJECT/build/
+/app/bin/get-properties | hdfs dfs -put -f - $PROJECT/build/job.properties
+
+echo "Copying main script to HDFS..."
+hdfs dfs -copyFromLocal -f /app/bin/run.py $PROJECT/build/
+
+echo "Generating RELEASE file..."
+echo "$PROJECT|$USER|$(date)|$RELEASE" | hdfs dfs -put -f - $PROJECT/build/RELEASE
+

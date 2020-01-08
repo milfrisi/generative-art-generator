@@ -10,6 +10,35 @@ including commands for:
 * Deploying your package dependencies
 
 
+Quickstart
+----------
+
+wf-scaffolding is a template for your project. To get it, just clone the
+respository with the name of your workflow:
+```
+    git clone ssh://git@git.trivago.trv/mp-ds/wf-scaffolding.git my-project
+```
+
+Enter the Docker environment that gives you a command line with Hive, HDFS and
+Kerberos support:
+```
+    docker-compose run -v </PATH/TO/MY.KEYTAB>:/etc/krb5.keytab cmd froggle 
+```
+
+Once inside, execute the commands to deploy the project:
+```
+    db-init --execute
+    deploy-src
+    deploy-env
+```
+
+Now you have your new project deployed in Hadoop with its database initialized.
+Just start changing it to create your workflow!
+
+(Although you may want to check out the following instructions to know what's
+going on here :D)
+
+
 Project structure once deployed
 -------------------------------
 
@@ -167,6 +196,11 @@ The summary of steps to adapt the scaffolding to your workflow are:
    executed sequentially. That means that, most likely, you want to create
    first your database(s), then your tables and then insert data into them if
    necessary.
+
+8. Finally and importantly: write a README file!
+
+   A template README file is provided at the root of the repository,
+   with headers for the sections that should be covered.
 
 Once you have your workflow configured, to create the database and deploy it in
 your workspace, execute:

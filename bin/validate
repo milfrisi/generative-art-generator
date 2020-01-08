@@ -1,0 +1,6 @@
+#!/bin/sh
+
+set -e
+
+oozie validate /app/conf/oozie/workflow.xml
+oozie validate /app/conf/oozie/coordinator.xml

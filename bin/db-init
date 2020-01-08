@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+
+import sys
+from enum import Enum
+
+import click
+from jinja2 import Template
+
+from lib.kerberos import get_kerberos_principal
+from lib.kerberos import KerberosError
+from lib.oozie import read_user_properties
+from lib.oozie import OozieError
+from lib.hive import execute_script
+from lib.hive import HiveError
+
+from app.directories import conf_dir
+from app.settings import db_init_scripts
+
+
+class ErrorCode(Enum):
+    KERBEROS_ERROR = 1
+    OOZIE_ERROR = 2
+    HIVE_ERROR = 3
+
+
+@click.command()
+@click.option("--execute", is_flag=True, help="Execute generated SQL statements in Hadoop")
+def db_init(execute):
+    """Bootstrap db configuration in the workspace of the current Kerberos user.
+
+    This command generates the SQL code to bootstrap an instance of the project in a
+    Hadoop user workspace. By default, it only outputs the result to stdout. To actually
+    execute the code in Hive, pass the '--execute' flag.
+    """
+    # get user (Kerberos principal)
+    try:
+        principal = get_kerberos_principal()
+    except KerberosError as err:
+        click.echo(f"Error: {err}", err=True)
+        sys.exit(ErrorCode.KERBEROS_ERROR.value)
+
+    # get properties to pass to templates
+    try:
+        properties = read_user_properties(conf_dir, principal)
+    except OozieError as err:
+        click.echo(f"Error: {err}", err=True)
+        sys.exit(ErrorCode.OOZIE_ERROR.value)
+
+    # executing scripts
+    if not db_init_scripts:
+        click.echo(f"Warning: no db_init_scripts list provided.")
+
+    for db_init_script in db_init_scripts:
+        click.echo(f"-- {db_init_script}")
+        template = Template(db_init_script.read_text())
+        content = template.render(properties)
+        if execute:
+            try:
+                execute_script(content, beeline_cmd="start-beeline")
+            except HiveError as err:
+                click.echo(f"Error: can't execute {db_init_script}", err=True)
+                click.echo(f"{err}", err=True)
+                sys.exit(ErrorCode.HIVE.value)
+        else:
+            click.echo(f"{content}\n")
+
+
+if __name__ == "__main__":
+    db_init()
