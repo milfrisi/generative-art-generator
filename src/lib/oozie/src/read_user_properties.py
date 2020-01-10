@@ -21,7 +21,7 @@ def read_user_properties(directory, user):
     try:
         default_properties = read_properties(directory / "default.properties")
     except FileNotFoundError:
-        raise OozieError(f"Can't find 'default.properties' file")
+        raise OozieError("Can't find 'default.properties' file")
 
     # get user properties
     try:
@@ -36,8 +36,8 @@ def read_user_properties(directory, user):
 
     # get db name
     if "project" not in merged_properties:
-        raise OozieError(f"'project' property not defined.")
-    db = f'{ user.lower() }_{ merged_properties["project"] }'
+        raise OozieError("'project' property not defined.")
+    db = f'{user.lower()}_{merged_properties["project"]}'.replace('-', '_')
 
     # get final properties
     properties = {

@@ -25,19 +25,19 @@ Kerberos support:
     docker-compose run -v </PATH/TO/MY.KEYTAB>:/etc/krb5.keytab cmd froggle 
 ```
 
-Once inside, execute the commands to deploy the project:
+Don't do it yet since you may want to configure the project first (see the
+Configuration section below), but these commands will deploy your project into
+Hadoop:
 ```
     db-init --execute
     deploy-src
     deploy-env
 ```
 
-Now you have your new project deployed in Hadoop with its database initialized.
-Just start changing it to create your workflow!
+Now you have your new project in your HDFS workspace with its database
+initialized. Just start changing it to create your workflow!
 
-(Although you may want to check out the following instructions to know what's
-going on here :D)
-
+You may want to take a look at the information below first thoug :)
 
 Project structure once deployed
 -------------------------------
@@ -126,12 +126,19 @@ app/
 
 The summary of steps to adapt the scaffolding to your workflow are:
 
-1. Add the workflow properties to `default.properties`.
+1. Add the workflow properties to `conf/default.properties`.
 
    The only required one is `project` that should be your project name and will
    be used to name the directories in HDFS and the jobs in Oozie. Properties
    are used by Oozie and are passed to the db-init scripts so they can be used
    as variables there during the database bootstrapping process.
+
+   IMPORTANT! use only alphanumeric characters, `_` and `-` for the name of
+   your project. Since it will be used to name the folder in your workspace and
+   the Hive database, it can create problems if you add any other type of
+   character. In the case of the database name, dashes (`-`) will be
+   automatically converted into underscores (`_`) and uppercase letters into
+   lowercase ones.
 
 2. Add your personal properties to `<USER>.properties`. (Optional)
 

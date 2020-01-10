@@ -2,7 +2,7 @@
     start="${coordinatorStartDate}"
     end="${coordinatorEndDate}"
     frequency="${coord:days(1)}"
-    name="${project}-${user}"
+    name="${user}-${project}"
     timezone="UTC"
     xmlns="uri:oozie:coordinator:0.2">
 
