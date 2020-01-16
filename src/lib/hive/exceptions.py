@@ -1,2 +1,0 @@
-class HiveError(Exception):
-    pass

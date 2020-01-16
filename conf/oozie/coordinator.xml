@@ -6,18 +6,9 @@
     timezone="UTC"
     xmlns="uri:oozie:coordinator:0.2">
 
-    <datasets>
-        <dataset name="wf_sessionStatsMaster_finished" frequency="${coord:days(1)}"
-            initial-instance="${datasetStartDate}" timezone="Europe/Berlin">
-            <uri-template>
-                ${nameNode}/user/BI/trivago_analytic_prod/session_stats_master/ymd=${YEAR}${MONTH}${DAY}
-            </uri-template>
-        </dataset>
-    </datasets>
-
     <action>
         <workflow>
-            <app-path>/user/${user}/${project}/build</app-path>
+            <app-path>/user/${user}/${project}/build/${project_entrypoint}</app-path>
             <configuration>
                 <property>
                     <name>oozie.use.system.libpath</name>

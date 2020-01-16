@@ -12,6 +12,5 @@ __pycache__
 .pytest_cache/
 .tmp/
 /.cache
-/build/
 /docker-compose.override.yml
 

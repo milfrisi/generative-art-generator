@@ -1,37 +1,50 @@
 #!/usr/bin/env python3
 
 import sys
+from pathlib import Path
 from enum import Enum
 
 import click
 from jinja2 import Template
 
-from lib.kerberos import get_kerberos_principal
-from lib.kerberos import KerberosError
-from lib.oozie import read_user_properties
-from lib.oozie import OozieError
-from lib.hive import execute_script
-from lib.hive import HiveError
-
-from app.directories import conf_dir
-from app.settings import db_init_scripts
+from trv.scaffolding.conf import get_project_conf
+from trv.scaffolding.kerberos import get_kerberos_principal
+from trv.scaffolding.oozie import read_user_properties
+from trv.scaffolding.hive import execute_script
+from trv.scaffolding.exceptions import ConfError
+from trv.scaffolding.exceptions import KerberosError
+from trv.scaffolding.exceptions import HiveError
+from trv.scaffolding.exceptions import OozieError
 
 
 class ErrorCode(Enum):
-    KERBEROS_ERROR = 1
-    OOZIE_ERROR = 2
-    HIVE_ERROR = 3
+    CONF_ERROR = 1
+    KERBEROS_ERROR = 2
+    OOZIE_ERROR = 3
+    HIVE_ERROR = 4
 
 
 @click.command()
+@click.option(
+    "--project-file",
+    default="pyproject.toml",
+    help="Path of the configuration file (default: pyproject.toml)",
+)
 @click.option("--execute", is_flag=True, help="Execute generated SQL statements in Hadoop")
-def db_init(execute):
+def db_init(project_file, execute):
     """Bootstrap db configuration in the workspace of the current Kerberos user.
 
     This command generates the SQL code to bootstrap an instance of the project in a
     Hadoop user workspace. By default, it only outputs the result to stdout. To actually
     execute the code in Hive, pass the '--execute' flag.
     """
+    # read configuration
+    try:
+        project_conf = get_project_conf(project_file)
+    except ConfError as err:
+        click.echo(f"Configuration error: {err}", err=True)
+        sys.exit(ErrorCode.CONF_ERROR.value)
+
     # get user (Kerberos principal)
     try:
         principal = get_kerberos_principal()
@@ -41,7 +54,7 @@ def db_init(execute):
 
     # get properties to pass to templates
     try:
-        properties = read_user_properties(conf_dir, principal)
+        properties = read_user_properties(principal, project_conf)
     except OozieError as err:
         click.echo(f"Error: {err}", err=True)
         sys.exit(ErrorCode.OOZIE_ERROR.value)
@@ -50,10 +63,11 @@ def db_init(execute):
     if not db_init_scripts:
         click.echo(f"Warning: no db_init_scripts list provided.")
 
-    for db_init_script in db_init_scripts:
+    for db_init_script in project_conf["db_init_scripts"]:
         click.echo(f"-- {db_init_script}")
         template = Template(db_init_script.read_text())
         content = template.render(properties)
+
         if execute:
             try:
                 execute_script(content, beeline_cmd="start-beeline")

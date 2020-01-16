@@ -3,13 +3,10 @@
 import sys
 
 import click
+import yaml
 
 from trv.scaffolding.conf import get_project_conf
-from trv.scaffolding.kerberos import get_kerberos_principal
-from trv.scaffolding.oozie import read_user_properties
 from trv.scaffolding.exceptions import ConfError
-from trv.scaffolding.exceptions import KerberosError
-from trv.scaffolding.exceptions import OozieError
 
 
 @click.command()
@@ -20,7 +17,7 @@ from trv.scaffolding.exceptions import OozieError
 )
 @click.option("--key", "-k", help="Display the value for this particular key")
 def get_properties(project_file, key):
-    """Display the computed properties for the current Kerberos user."""
+    """Display the configuration for the current project."""
     # read configuration
     try:
         project_conf = get_project_conf(project_file)
@@ -28,34 +25,18 @@ def get_properties(project_file, key):
         click.echo(f"Configuration error: {err}", err=True)
         sys.exit(1)
 
-    # get user (Kerberos principal)
-    try:
-        principal = get_kerberos_principal()
-    except KerberosError as err:
-        click.echo(f"Error: {err}", err=True)
-        sys.exit(1)
-
-    # get properties
-    try:
-        properties = read_user_properties(principal, project_conf)
-    except OozieError as err:
-        click.echo(f"Error: {err}", err=True)
-        sys.exit(1)
-
     # display result
     if key:
         # one key
         try:
-            value = properties[key]
+            value = project_conf[key]
         except KeyError:
             click.echo(f"Error: key {key} not found.", err=True)
             sys.exit(1)
         else:
             click.echo(value)
     else:
-        # all keys
-        for key, value in properties.items():
-            click.echo(f"{key}={value}")
+        print(yaml.dump(project_conf))
 
 
 if __name__ == "__main__":

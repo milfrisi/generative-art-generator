@@ -2,17 +2,19 @@
 
 set -e
 
-PROJECT=$(get-properties -k project)
+PROJECT=$(get-conf -k project)
+REQUIREMENTS_FILE=$(get-conf -k requirements_file)
+BUILD_DIR=/tmp/scaffolding/$$/build
 
 echo "Cleaning previous build..."
-rm -f -r /app/build/env
+rm -f -r $BUILD_DIR
 
-echo "Creating Conda environment..."
-/opt/miniconda/bin/conda create --file /app/conf/env/requirements.txt --copy -y -p /app/build/env
+echo "Creating Conda environment... ($BUILD_DIR/env)"
+/opt/miniconda/bin/conda create --file $REQUIREMENTS_FILE --copy -y -p $BUILD_DIR/env
 
-echo "Creating compressed environmet file: build/env.zip"
-(cd /app/build/env/ && zip -r /app/build/env.zip *)
+echo "Creating compressed environmet file ($BUILD_DIR/env.zip)"
+(cd $BUILD_DIR/env/ && zip -r $BUILD_DIR/env.zip *)
 
 echo "Copying environment to HDFS..."
 hdfs dfs -mkdir -p $PROJECT/
-hdfs dfs -copyFromLocal -f /app/build/env.zip $PROJECT/env.zip
+hdfs dfs -copyFromLocal -f $BUILD_DIR/env.zip $PROJECT/env.zip

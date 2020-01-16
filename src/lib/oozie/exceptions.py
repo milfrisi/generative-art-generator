@@ -1,2 +1,0 @@
-class OozieError(Exception):
-    pass
