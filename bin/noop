@@ -1,7 +1,0 @@
-#!/bin/sh
-
-echo "noop!"
-
-# just to keep a container running
-tail -f /dev/null
-

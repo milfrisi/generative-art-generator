@@ -1,4 +1,0 @@
-#!/bin/sh
-
-flake8 /app/src/
-
