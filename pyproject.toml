@@ -2,8 +2,8 @@
 line-length = 100
 
 [tool.scaffolding]
-project = "aaa"
-project_type = "hive"
+project = "scaffolding"
+project_type = "pyspark"
 db_init_scripts = [
     "src/app/component/sql/create_db.sql",
     "src/app/component/sql/table_ticker.sql",
