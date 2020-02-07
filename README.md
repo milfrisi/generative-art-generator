@@ -40,7 +40,7 @@ project.
 
 The first step is to clone and rename it with the name of your project:
 ```
-    git clone ssh://git@git.trivago.trv/mp-ds/wf-scaffolding.git my-project
+git clone ssh://git@git.trivago.trv/mp-ds/wf-scaffolding.git my-project
 ```
 
 Then you can inmediately have access to the Docker environment that gives you
@@ -48,16 +48,16 @@ Hive, HDFS and Kerberos support. Notice that you have to pass the location of
 your Kerberos keytab in your local computer in order for the container to be
 able to connect to Hadoop correctly:
 ```
-    docker-compose run -v </PATH/TO/MY.KEYTAB>:/etc/krb5.keytab cmd bash
+docker-compose run -v </PATH/TO/MY.KEYTAB>:/etc/krb5.keytab cmd bash
 ```
 
 Don't do it yet since you may want to configure the project first (see the
 Configuration section below), but executing commands will deploy your project
 into Hadoop:
 ```
-    db-init --execute
-    deploy-src
-    deploy-env
+db-init --execute
+deploy-src
+deploy-env
 ```
 
 Now you have your new project in your HDFS workspace with its database
@@ -71,14 +71,14 @@ Project structure once deployed
 After deploying your project will look like this:
 
 ```
-    /user/<USER>/db/<PROJECT>.db    # Hive database
-    /user/<USER>/<PROJECT>/build/   # workflow files (source + Oozie configuration)
-    /user/<USER>/<PROJECT>/env.zip  # Conda environment containing the wf dependencies
+/user/<USER>/db/<PROJECT>.db    # Hive database
+/user/<USER>/<PROJECT>/build/   # workflow files (source + Oozie configuration)
+/user/<USER>/<PROJECT>/env.zip  # Conda environment containing the wf dependencies
 ```
 
 And your Hive database will be named (if the default name is not changed):
 ```
-    <USER>_<PROJECT>
+<USER>_<PROJECT>
 ```
 
 How to run the commands
@@ -218,14 +218,14 @@ db_init_scripts = [
 Once you have your workflow configured, to create the database and deploy it in
 your workspace, execute:
 ```
-    docker-compose run -v </PATH/TO/MY.KEYTAB>:/etc/krb5.keytab cmd bash
-    /app# db-init --execute
-    /app# deploy-src
-    /app# deploy-env
+docker-compose run -v </PATH/TO/MY.KEYTAB>:/etc/krb5.keytab cmd bash
+/app# db-init --execute
+/app# deploy-src
+/app# deploy-env
 ```
 After that, most of the time you'll need only to change your code and then do:
 ```
-    /app# deploy-src
+/app# deploy-src
 ```
 
 Reset project
@@ -238,12 +238,12 @@ want to start from a blank state, you can do something like:
 You can get a Hive command line by executing `start-beehive`. Then you can
 delete the database with:
 ```
-    DROP DATABASE <database_name> cascade;
+DROP DATABASE <database_name> cascade;
 ```
 
 Then you can delete the database files (if necessary) with:
 ```
-    hdfs dfs -rm -r /user/<USER>/db/<PROJECT>.db
+hdfs dfs -rm -r /user/<USER>/db/<PROJECT>.db
 ```
 
 Other commands
@@ -258,7 +258,7 @@ actions that you can run from inside the Docker container:
 
 Also, outside the Docker container, you can run:
 ```
-    make init
+make init
 ```
 To install a `black` check as a pre-commit hook. That means that if you try to
 commit code that doesn't conform to Black rules, the commit will be aborted.
