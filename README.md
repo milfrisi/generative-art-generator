@@ -2,32 +2,58 @@
 wf-scaffolding
 ==============
 
-Scaffolding gives you a base structure for your Hadoop workflow project,
-including commands for:
+The `trv-scaffolding` tool is a Python package that allows you to easily
+initialize, deploy and run your workflows in your own personal space.
 
-* Initializing your database(s)
-* Deploying your code
-* Deploying your package dependencies
+This respository is a template workflow that you can use to create your own or
+to see how you can modify an existing one so you can use the scaffolding
+commands.
 
+`trv-scaffolding` supports both Hive and Spark workflows. The commands that
+you'll have available are:
+
+* `db-init`: initialize the database in a user space
+* `deploy-src`: package and deploy your code
+* `deploy-env`: package and deploy your workflow dependencies
+* `submit`: run your workflow
+
+This means that you can execute these actions from your local machine as you
+modify the code of your workflow allowing you to iterate on your solution
+faster.
+
+Dependencies
+------------
+
+The only dependency to use these commands is to have Docker installed in your
+machine.
+
+All commands have to be run inside a Docker container whose image is provided
+and already configured to deal with Kerberos, trivago's Hadoop configuration and
+includes Hive and HDFS tools. So basically you get all the configuration and
+matching versions once you're inside the command line of that container.
 
 Quickstart
 ----------
 
-wf-scaffolding is a template for your project. To get it, just clone the
-respository with the name of your workflow:
+wf-scaffolding is a dummy workflow that you can use to bootstrap your
+project.
+
+The first step is to clone and rename it with the name of your project:
 ```
     git clone ssh://git@git.trivago.trv/mp-ds/wf-scaffolding.git my-project
 ```
 
-Enter the Docker environment that gives you a command line with Hive, HDFS and
-Kerberos support:
+Then you can inmediately have access to the Docker environment that gives you
+Hive, HDFS and Kerberos support. Notice that you have to pass the location of
+your Kerberos keytab in your local computer in order for the container to be
+able to connect to Hadoop correctly:
 ```
-    docker-compose run -v </PATH/TO/MY.KEYTAB>:/etc/krb5.keytab cmd froggle 
+    docker-compose run -v </PATH/TO/MY.KEYTAB>:/etc/krb5.keytab cmd bash
 ```
 
 Don't do it yet since you may want to configure the project first (see the
-Configuration section below), but these commands will deploy your project into
-Hadoop:
+Configuration section below), but executing commands will deploy your project
+into Hadoop:
 ```
     db-init --execute
     deploy-src
@@ -67,31 +93,17 @@ wf-scaffolding provides three main commands:
   workflow configuration for this user and copy everything to HDFS.
 
 * `deploy-env`: create a Conda environment with the packages specified in
-  `/app/conf/env/requirements.txt`, zip it and send it to HDFS.
+  `/app/conf/env/requirements.txt`, zip it and send it to HDFS. You only need to
+  execute this the first time you deploy your workflow and every time you change
+  the requirements, but not when you change your code. Also: this is only
+  required for PySpark workflows.
 
-To execute them, enter into the provided Docker container (`hadoop-cli`) passing
-your personal Kerberos keytab:
-
-```
-    docker-compose run -v </PATH/TO/MY.KEYTAB>:/etc/krb5.keytab cmd froggle 
-```
-
-(`froggle` here is just a wrapper over zsh that give you a colored prompt so
-you easily see that you're inside the container. Just replace it by `bash` if
-you prefer using that one.)
+* `submit <YMD>`: submit your workflow for execution. You'll get back an URL in
+  the terminal that you can use to track the progress of your job in your
+  browser.
 
 Once your project is configured (see next section), you can execute the above
-commands directly in that shell, which provides already set-up Hive and HDFS
-connectivity.
-
-How to get the code
--------------------
-
-The easier way to get wf-scaffolding is to create your new repository as a clone of it:
-```
-    git clone ssh://git@git.trivago.trv/mp-ds/wf-scaffolding.git my-project
-```
-This will allow you to pull in new changes in the future too.
+commands directly in the Docker shell.
 
 Configuration
 -------------
@@ -99,14 +111,12 @@ Configuration
 **Workflow**
 
 wf-scaffolding provides a barebones working workflow that you can use as a base to start adding your own code.
-
-The main files are:
+The Python files are not needed for Hive workflows:
 
 ```
 app/
 ├── bin/
-│   └── run.py                    # main Spark script (pretty generic, may not need too many changes)
-├── build                         # directory where zip files to be sent to HDFS are created
+│   └── run.py                    # main Spark script
 ├── conf
 │   ├── default.properties        # job.properties is created by merging `default.properties` and
 │   ├── <USER>.properties         # `<USER>.properties` (if it exists). `<USER>` is the keytab user.
@@ -121,17 +131,28 @@ app/
     │   ├── <component-2>
     │   ├── directories.py        # key directories of your application defined as pathlib objects
     │   └── settings.py           # settings of your application
-    └── lib                       # generic code of your application (business agnostic)
+    └── lib                       # generic code of your application
 ```
 
 The summary of steps to adapt the scaffolding to your workflow are:
 
-1. Add the workflow properties to `conf/default.properties`.
+1. Configure your workflow using `pyproject.toml`:
 
-   The only required one is `project` that should be your project name and will
-   be used to name the directories in HDFS and the jobs in Oozie. Properties
-   are used by Oozie and are passed to the db-init scripts so they can be used
-   as variables there during the database bootstrapping process.
+```
+[tool.scaffolding]
+project = "scaffolding"
+project_type = "pyspark"
+db_init_scripts = [
+    "src/app/component/sql/create_db.sql",
+    "src/app/component/sql/table_ticker.sql",
+]
+```
+   - Set the name of your project.
+   - Set the project type (either `pyspark` or `hive`)
+   - List the scripts that will be executed to initialize the database. They can
+     be anywhere in the folder structure of the repository and will be executed
+     sequentially. For example, you can first create the database, then some
+     tables and then insert some initial data if needed.
 
    IMPORTANT! use only alphanumeric characters, `_` and `-` for the name of
    your project. Since it will be used to name the folder in your workspace and
@@ -140,18 +161,23 @@ The summary of steps to adapt the scaffolding to your workflow are:
    automatically converted into underscores (`_`) and uppercase letters into
    lowercase ones.
 
-2. Add your personal properties to `<USER>.properties`. (Optional)
+2. Add the workflow properties to `conf/default.properties`.
+
+   Properties are used by Oozie and are passed to the db-init scripts so they
+   can be used as variables there during the database bootstrapping process.
+
+3. Add your personal properties to `<USER>.properties`. (Optional)
 
    If you want to override some properties but just for your user, create a
    file `conf/<USER>.properties` with them, where `<USER>` is your
-   Kerberos/Hadoop username. wf-scaffold will use your keytab to extract this
+   Kerberos/Hadoop username. Scaffolding will use your keytab to extract this
    name and will try to find this file. If it is there, the properties in it
    will take precedence over the ones in `default.properties`.
 
    You can add your personal properties to the workflow repository and have
    them under version control too.
 
-3. Adapt Oozie files. (Optional)
+4. Adapt Oozie files. (Optional)
 
    `conf/oozie/coordinator.xml` and `conf/oozie/workflow.xml` are pretty
    generic, but you may want to take a look at them. In particular, you may
@@ -159,7 +185,7 @@ The summary of steps to adapt the scaffolding to your workflow are:
    properties are passed to the workflow, you can pass different arguments to
    `bin/run.py` for your user in case it is needed.
 
-4. Adapt `run.py` to call the entrypoint of your code.
+5. Adapt `run.py` to call the entrypoint of your code.
 
    The last step of the main `bin/run.py` script is to call the entrypoint of
    your code with the parameters passed from `workflow.xml`. Import and call
@@ -169,13 +195,13 @@ The summary of steps to adapt the scaffolding to your workflow are:
    of the file too, when the file `src.zip` has already been added to the Spark
    context.
 
-5. Add the requirements of your application. (Optional)
+6. Add the requirements of your application. (Optional)
 
    If your code requires the presence of third party Python packages to run,
    add them to `conf/env/requirements.txt`. They will automatically be added to
    the Conda environment that you can deploy together with your application.
 
-6. Add your code.
+7. Add your code.
 
    You can add the code of your workflow/application to `src/app` and the
    generic code that is not business specific into `src/lib`.
@@ -184,54 +210,46 @@ The summary of steps to adapt the scaffolding to your workflow are:
    different business partitions of the workflow, and inside each partition to
    have all the tables, schemas or aggregation functions related to it.
 
-7. Define how to initialize the database.
-
-   Use the variable `db_init_scripts` in `/app/src/app/settings.py` to list all
-   the SQL scripts that have to be run to create a brand new database.
-
-   For example::
-
-```
-    from app.directories import project_dir
-    db_init_scripts = [
-        project_dir / "src/app/foo/sql/create_db.sql",
-        project_dir / "src/app/foo/sql/table_foobar.sql",
-    ]
-```
-
-   The scripts can be located anywhere in your project structure and will be
-   executed sequentially. That means that, most likely, you want to create
-   first your database(s), then your tables and then insert data into them if
-   necessary.
-
 8. Finally and importantly: write a README file!
 
-   A template README file is provided at the root of the repository,
+   A template README-project.md file is provided at the root of the repository,
    with headers for the sections that should be covered.
 
 Once you have your workflow configured, to create the database and deploy it in
 your workspace, execute:
 ```
-    docker-compose run -v </PATH/TO/MY.KEYTAB>:/etc/krb5.keytab cmd froggle 
+    docker-compose run -v </PATH/TO/MY.KEYTAB>:/etc/krb5.keytab cmd bash
     /app# db-init --execute
     /app# deploy-src
     /app# deploy-env
 ```
-Once you have a database and your environment in HDFS already, you can iterate
-on your code and deploy it with just:
+After that, most of the time you'll need only to change your code and then do:
 ```
     /app# deploy-src
 ```
 
-**Note:** wf-scaffolding can create a new database and override your files
-every time you deploy, but it will not delete anything in HDFS/Hive by itself
-for safety reasons. That means that if you want to start from a clean state you
-have to drop the database or delete the project folder yourself.
+Reset project
+-------------
+
+**Important**: For now, Scaffolding won't delete the database for you if you
+want to recreate it. For safety reasons you have to do that manually. So if you
+want to start from a blank state, you can do something like:
+
+You can get a Hive command line by executing `start-beehive`. Then you can
+delete the database with:
+```
+    DROP DATABASE <database_name> cascade;
+```
+
+Then you can delete the database files (if necessary) with:
+```
+    hdfs dfs -rm -r /user/<USER>/db/<PROJECT>.db
+```
 
 Other commands
 --------------
 
-Apart from the above mentioned commands, wf-scaffold includes some additional
+Apart from the above mentioned commands, scaffolding includes some additional
 actions that you can run from inside the Docker container:
 
 * `validate`: check the syntax of your `coordinator.xml` and `workflow.xml` files.
