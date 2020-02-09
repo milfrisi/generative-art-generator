@@ -40,7 +40,7 @@ project.
 
 The first step is to clone and rename it with the name of your project:
 ```
-git clone ssh://git@git.trivago.trv/mp-ds/wf-scaffolding.git my-project
+git clone http://git.trivago.trv/mp-ds/wf-scaffolding.git my-project
 ```
 
 Then you can inmediately have access to the Docker environment that gives you
