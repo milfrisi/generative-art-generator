@@ -8,7 +8,7 @@
 
     <action>
         <workflow>
-            <app-path>/user/${user}/${project}/build/${project_entrypoint}</app-path>
+            <app-path>/user/${user}/${project}/workflows/example_spark_wf/</app-path>
             <configuration>
                 <property>
                     <name>oozie.use.system.libpath</name>

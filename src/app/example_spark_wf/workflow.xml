@@ -25,7 +25,7 @@
             <master>yarn</master>
             <mode>cluster</mode>
             <name>${project}-${user}</name>
-            <jar>${nameNode}/user/${user}/${project}/build/run.py</jar>
+            <jar>${nameNode}/user/${user}/${project}/src/app/example_spark_wf/run.py</jar>
             <spark-opts>
                 --files ${nameNode}/data/hive/hive-site.xml
                 --py-files pyspark.zip,py4j-0.10.7-src.zip
@@ -37,7 +37,7 @@
             </spark-opts>
             <arg>--crunch_date=${crunchDate}</arg>
             <arg>--database=${db}</arg>
-            <arg>--src_file=${nameNode}/user/${user}/${project}/build/src.zip</arg>
+            <arg>--src_file=${nameNode}/user/${user}/${project}/src.zip</arg>
             <archive>${nameNode}/user/${user}/${project}/env.zip#CONDAENV</archive>
         </spark>
         <ok to="email_succeed" />

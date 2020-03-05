@@ -3,9 +3,9 @@ line-length = 100
 
 [tool.scaffolding]
 project = "scaffolding"
-project_type = "pyspark"
 db_init_scripts = [
-    "src/app/component/sql/create_db.sql",
-    "src/app/component/sql/table_ticker.sql",
+    "db/create_db.sql",
+    "src/app/example_spark_wf/tables/ticker.sql",
+    "src/app/example_hive_wf/tables/uuids.sql",
 ]
 

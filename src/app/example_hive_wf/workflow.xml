@@ -1,0 +1,57 @@
+<workflow-app name="${user}-${project}" xmlns="uri:oozie:workflow:0.5">
+    <global>
+        <job-tracker>${jobTracker}</job-tracker>
+        <name-node>${nameNode}</name-node>
+        <job-xml>/data/hive/hive-site-tez.xml</job-xml>
+    </global>
+    <credentials>
+        <credential name="hcat-trivago" type="hcat-trivago" />
+    </credentials>
+
+    <start to="insert_uuid" />
+
+    <action name="insert_uuid" cred="hcat-trivago">
+        <hive xmlns="uri:oozie:hive-action:0.5">
+            <script>insert_uuid.hql</script>
+            <param>db=${db}</param>
+        </hive>
+        <ok to="end" />
+        <error to="email_then_kill" />
+    </action>
+
+    <action name="email_then_kill">
+        <sub-workflow>
+            <app-path>${nameNode}/user/${wf:user()}/mpi-wf/generic/wf_sendEmail</app-path>
+            <propagate-configuration />
+            <configuration>
+                <property>
+                    <name>to</name>
+                    <value>${emailToList}</value>
+                </property>
+                <property>
+                    <name>subject</name>
+                    <value>Workflow ${wf:name()} failed (${wf:user()})</value>
+                </property>
+                <property>
+                    <name>body</name>
+                    <value>
+Workflow: ${wf:name()}
+User:     ${wf:user()}
+Action:   ${wf:lastErrorNode()}
+Error:    ${wf:errorMessage(wf:lastErrorNode())}
+
+Go to http://mgmt1.hadoop.trivago.com:8889/oozie/list_oozie_workflow/${wf:id()}/
+                    </value>
+                </property>
+            </configuration>
+        </sub-workflow>
+        <ok to="kill" />
+        <error to="kill" />
+    </action>
+
+    <kill name="kill">
+        <message>Action failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+    </kill>
+
+    <end name="end" />
+</workflow-app>

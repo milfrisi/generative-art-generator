@@ -42,7 +42,7 @@ if __name__ == "__main__":
     spark.sparkContext.addPyFile(params.src_file)
 
     # We need to import the project's code after the addPyFile above
-    from app.component.run_wf import run_wf
+    from app.example_spark_wf.workflow import workflow
 
     # run wf
-    run_wf(spark, database=params.database, ymd=int(params.crunch_date))
+    workflow(spark, database=params.database, ymd=int(params.crunch_date))
