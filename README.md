@@ -122,6 +122,7 @@ commands to work with your workflows:
 * `deploy-src`: package and deploy your code
 * `deploy-env`: package and deploy your workflow Spark dependencies
 * `submit`: run your workflow
+* `submit-coord`: run your coordinator
 * `validate`: validate the syntax of your Oozie files
 
 A typical development session using these commands might look like this:
@@ -434,6 +435,17 @@ the passed crunch date.
 
 After executing the command, you'll get an URL to track the execution of the
 job. Click on it or copy/paste it in a browser to see it.
+
+## submit-coord
+
+In the same way that you can submit a workflow, you can also submit a
+coordinator. In this case you don't need to specify a crunch date since the
+dates for it will be taken from the properties files. Eg:
+```
+submit-coord src/app/
+```
+The directory to specify is the one where the `coordinator.xml` is located.
+After submitting your coordinator you'll get an URL to follow its execution.
 
 ## validate
 
