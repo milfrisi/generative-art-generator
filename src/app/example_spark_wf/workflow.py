@@ -1,5 +1,5 @@
-from datetime import datetime
 from pyspark.sql import Row
+
 from lib.timestamp_tools import get_timestamp
 
 
@@ -10,3 +10,4 @@ def workflow(spark, database, ymd):
     timestamp = get_timestamp()
     df = spark.createDataFrame([Row(timestamp=timestamp)])
     df.write.format("hive").mode("append").saveAsTable(f"{database}.ticker")
+

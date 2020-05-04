@@ -21,36 +21,31 @@
 
     <action name="email_then_kill">
         <sub-workflow>
-            <app-path>${nameNode}/user/${wf:user()}/mpi-wf/generic/wf_sendEmail</app-path>
-            <propagate-configuration />
+            <app-path>${nameNode}/user/BI/hadoop-wf/co_genericTools/wf_sendNotification
+            </app-path>
+            <propagate-configuration/>
             <configuration>
                 <property>
-                    <name>to</name>
+                    <name>emailRecipient</name>
                     <value>${emailToList}</value>
                 </property>
                 <property>
-                    <name>subject</name>
-                    <value>Workflow ${wf:name()} failed (${wf:user()})</value>
+                    <name>workflowName</name>
+                    <value>${wf:name()}</value>
                 </property>
                 <property>
-                    <name>body</name>
-                    <value>
-Workflow: ${wf:name()}
-User:     ${wf:user()}
-Action:   ${wf:lastErrorNode()}
-Error:    ${wf:errorMessage(wf:lastErrorNode())}
-
-Go to http://mgmt1.hadoop.trivago.com:8889/oozie/list_oozie_workflow/${wf:id()}/
-                    </value>
+                    <name>workflowId</name>
+                    <value>${wf:id()}</value>
                 </property>
             </configuration>
         </sub-workflow>
-        <ok to="kill" />
+        <ok to="end" />
         <error to="kill" />
     </action>
 
     <kill name="kill">
-        <message>Action failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+        <message>Action failed, error
+            message[${wf:errorMessage(wf:lastErrorNode())}]</message>
     </kill>
 
     <end name="end" />

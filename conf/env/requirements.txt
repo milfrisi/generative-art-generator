@@ -1,3 +1,5 @@
-python=3.7.4
-pyspark=2.4.3
-pandas=0.25.3
+python==3.7.4
+pyspark==2.4.3
+pyarrow==0.15.1
+pandas==0.25.3
+click==7.1.1
