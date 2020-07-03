@@ -226,7 +226,7 @@ db-init --execute
 want to recreate it. For safety reasons you have to do that manually. So if you
 want to start from a blank state, you can do something like:
 
-You can get a Hive command line by executing `start-beehive`. Then you can
+You can get a Hive command line by executing `start-beeline`. Then you can
 delete the database with:
 ```
 DROP DATABASE <database_name> cascade;
