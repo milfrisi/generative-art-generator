@@ -30,7 +30,7 @@
                 --files ${nameNode}/data/hive/hive-site.xml
                 --py-files pyspark.zip,py4j-0.10.7-src.zip,${nameNode}/user/${user}/${project}/src.zip
                 <!-- add jars to be able to query gobblin_streams -->
-                --jars hdfs:///user/kafka/lib/hive_aux_jars/protobuf-serde-sharelib-all.jar,hdfs:///user/kafka/lib/hive_aux_jars/protobuf-build-sop-sharelib-all.jar,hdfs:///user/kafka/lib/hive_aux_jars/protobuf-build-sps-sharelib-all.jar
+                --jars hdfs:///user/kafka/lib/hive_aux_jars/protobuf-serde-sharelib-all.jar,hdfs:///user/kafka/lib/hive_aux_jars/protobuf-build-sharelib-all.jar
                 <!-- use the custom Python interpreter of the environment -->
                 --conf spark.yarn.appMasterEnv.PYSPARK_PYTHON=./env/bin/python3
                 --conf spark.executorEnv.PYSPARK_PYTHON=./env/bin/python3
