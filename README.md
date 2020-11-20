@@ -78,7 +78,7 @@ app/
 │   ├── default.properties        # job.properties is created by merging `default.properties` and
 │   ├── <user>.properties         # `<user>.properties` (if it exists). `<user>` is the keytab user.
 │   └── env
-│       └── requirements.txt      # Python dependencies of your application (always provide exact versions)
+│       └── environment.yml       # Python dependencies of your application (always provide exact versions)
 └── src                           # your application source code
     ├── app
     │   ├── <workflow-1>          # a workflow directory
@@ -242,24 +242,48 @@ hadoop fs -rm -r /user/<user>/db/<project>.db
 You can specify the Python dependencies of your PySpark workflows (in case you
 have any), in the file:
 ```
-conf/env/requirements.txt
+conf/env/environment.yml
 ```
 At the bare minimum, you have to specify these two inside it:
 ```
-python=3.7.4
-pyspark=2.4.3
+dependencies:
+  - python=3.7.4
+  - pyspark=2.4.3
 ```
 But you can also add any Python package that you want to use. For example, if
-you want to use pandas, your `requirements.txt` file can look like this one:
+you want to use pandas, your `environment.yml` file can look like this one:
 ```
-python=3.7.4
-pyspark=2.4.3
-pandas=0.25.3
+dependencies:
+  - python=3.7.4
+  - pyspark=2.4.3
+  - pandas=0.25.3
 ```
+If you would like to include a package that can only be installed through pip,
+you can use:
+```
+dependencies:
+  - python=3.7.4
+  - pyspark=2.4.3
+  - pandas=0.25.3
+  - pip:
+    - <specific_pip_package>==<version>
+```
+If you want to add a private package that is for example present on trivago
+artifactory, you can use:
+```
+dependencies:
+  - python=3.7.4
+  - pyspark=2.4.3
+  - pandas=0.25.3
+  - pip:
+    - --extra-index-url https://artifactory.tcs.trv.cloud/artifactory/api/pypi/pypi-local/simple
+    - <your_package_name>==<version>
+```
+
 Remember to always specify the exact version you want to use to prevent the
 workflow breaking because of changes in the dependencies.
 
-Once you have your requirements file ready, you can execute:
+Once you have your environment file ready, you can execute:
 ```
 deploy-env
 ```
@@ -272,7 +296,7 @@ so it will be available for all your Spark workflows.
 **Important**: executing `deploy-env` takes some time because the generated
 Conda environment is a big file, notice however that you only have to use it if
 you have Spark workflows and only when you change your dependencies in your
-`requirements.txt` file. If you don't change your dependencies, you can deploy
+`environment.yml` file. If you don't change your dependencies, you can deploy
 the environment only once and just do `deploy-src` when you change your code.
 
 ## deploy-src
@@ -349,7 +373,7 @@ from lib.date_utils import bar
 
 **Note**: If you have truly generic code, consider moving it to an actual
 Python package instead of having it stored in `lib/`, and have it listed inside
-your `requirements.txt` file. You can use the `lib/` folder for code that is
+your `environment.yml` file. You can use the `lib/` folder for code that is
 common across several workflows or as a first step before creating a Python
 library when you are working on it very frequently and deploying a separate
 package for every change is too much of a hassle.
