@@ -1,0 +1,10 @@
+dependencies:
+  - python=3.7.4 
+  - pyspark=2.4.3
+  - pyarrow=0.15.1
+  - pandas=0.25.3
+  - click=7.1.1
+  # To add pypi libraries or to add a package that is only present locally or privately you can use the pip command 
+  #- pip:
+  # - --extra-index-url https://artifactory.tcs.trv.cloud/artifactory/api/pypi/pypi-local/simple
+  # - <package_name>==<version>
