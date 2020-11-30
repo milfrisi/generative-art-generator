@@ -114,7 +114,7 @@ that they can go into different repos.
 Development commands (trv-scaffolding)
 --------------------------------------
 
-[trv-scaffolding](http://git.trivago.trv/projects/MP-DS/repos/trv-scaffolding/browse)
+[trv-scaffolding-lib](https://github.com/trivago/scaffolding-lib)
 is a Python package, already present in the image, that provides several
 commands to work with your workflows:
 
