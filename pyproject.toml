@@ -1,9 +1,14 @@
 
 [tool.scaffolding]
-project = "scaffolding"
+project = "impression-scaffolding"
 db_init_scripts = [
-    "db/create_db.sql",
-    "src/app/example_spark_wf/tables/ticker.sql",
-    "src/app/example_hive_wf/tables/uuids.sql",
+    "src/app/wf_dailyImpressionPipeline/wf_updateIngestionTables/table_hotel_search_concept_search_query.hql",
+    "src/app/wf_dailyImpressionPipeline/wf_updateIngestionTables/table_hotel_search_concept_search_result.hql",
+    "src/app/wf_dailyImpressionPipeline/wf_updateIngestionTables/table_hotel_search_price_impression.hql",
+    "src/app/wf_dailyImpressionPipeline/wf_updateIngestionTables/table_hotel_search_search_engine_detail.hql",
+    "src/app/wf_dailyImpressionPipeline/wf_updateIngestionTables/table_hotel_search_web_access_log.hql",
+    "src/app/wf_dailyImpressionPipeline/wf_updateIngestionTables/table_marketplace_exposure_algorithm_result.hql",
+    "src/app/wf_dailyImpressionPipeline/wf_updateStagingTables/table_hotel_search_result.hql",
+    "src/app/wf_dailyImpressionPipeline/wf_updateCoreTables/table_impression.hql",
 ]
 

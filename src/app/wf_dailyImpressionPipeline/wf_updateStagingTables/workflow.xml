@@ -1,0 +1,74 @@
+<workflow-app name="wf_updateStagingTables"
+              xmlns="uri:oozie:workflow:0.5">
+    <global>
+        <job-tracker>${jobTracker}</job-tracker>
+        <name-node>${nameNode}</name-node>
+        <job-xml>/data/hive/hive-site-tez.xml</job-xml>
+    </global>
+    <credentials>
+        <credential name="hcat-trivago"
+                    type="hcat-trivago" />
+    </credentials>
+
+    <start to="hotel_search_result" />
+
+    <action name="hotel_search_result"
+            cred="hcat-trivago">
+        <hive xmlns="uri:oozie:hive-action:0.5">
+            <script>hive_hotel_search_result.hql</script>
+            <param>crunchDate=${crunchDate}</param>
+            <param>gobblin_streams_db=${gobblin_streams_db}</param>
+            <param>trivago_analytic_db=${trivago_analytic_db}</param>
+            <param>trivago_stage_db=${trivago_stage_db}</param>
+        </hive>
+        <ok to="write_success_flag"/>
+        <error to="email_failed"/>
+    </action>
+    
+    <action name="write_success_flag">
+        <fs>
+            <touchz path='${nameNode}${trivago_stage_db_hdfs_path}/hotel_search_result/ymd=${crunchDate}/_SUCCESS'/>
+        </fs>
+        <ok to="impala_refresh"/>
+        <error to="email_failed"/>
+    </action>
+
+    <action name="impala_refresh">
+        <java>
+            <main-class>com.trivago.oozie.action.ImpalaQueryProducer</main-class>
+            <arg>COMPUTE_INCREMENTAL</arg>
+            <!-- query type: REFRESH, INVALIDATE, COMPUTE, COMPUTE_INCREMENTAL -->
+            <arg>${trivago_stage_db}.hotel_search_result</arg>
+            <file>/user/kafka/lib/oozie-action-FIXED-all.jar</file>
+        </java>
+        <ok to="email_success"/>
+        <error to="email_failed"/>
+    </action>
+
+    <action name="email_failed">
+        <email xmlns="uri:oozie:email-action:0.2">
+            <to>${error_notification_email_recipient}</to>
+            <subject>FAILED: ${wf:name()} execution for crunchDate=${crunchDate}</subject>
+            <body></body>
+            <content_type>text/plain</content_type>
+        </email>
+        <ok to="kill"/>
+        <error to="kill"/>
+    </action>
+    <kill name="kill">
+        <message>Action failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+    </kill>
+
+    <action name="email_success">
+        <email xmlns="uri:oozie:email-action:0.2">
+            <to>${success_notification_email_recipient}</to>
+            <subject>SUCCESSFUL: ${wf:name()} execution for crunchDate=${crunchDate}</subject>
+            <body></body>
+            <content_type>text/plain</content_type>
+        </email>
+        <ok to="end"/>
+        <error to="end"/>
+    </action>
+
+    <end name="end"/>
+</workflow-app>
