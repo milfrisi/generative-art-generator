@@ -39,8 +39,8 @@
                 --conf spark.yarn.appMasterEnv.ARROW_PRE_0_15_IPC_FORMAT=1
                 --conf spark.executorEnv.ARROW_PRE_0_15_IPC_FORMAT=1
                 <!-- uncomment for dependencies that use Theano (eg. PyMC3) -->
-                --conf spark.yarn.appMasterEnv.THEANO_FLAGS=base_compiledir=/tmp/
-                --conf spark.executorEnv.THEANO_FLAGS=base_compiledir=/tmp/
+                --conf spark.yarn.appMasterEnv.THEANO_FLAGS="base_compiledir='./.theano',blas.ldflags='-lblas'"
+                --conf spark.executorEnv.THEANO_FLAGS="base_compiledir='/tmp/${wf:user()}/.theano',blas.ldflags='-lblas'"
                 <!-- extra configuration -->
                 --conf spark.sql.autoBroadcastJoinThreshold=-1
                 --conf spark.extraListeners=
