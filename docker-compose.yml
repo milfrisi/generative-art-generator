@@ -1,7 +1,7 @@
 version: '3.2'
 services:
     cmd:
-        image: artifactory.tcs.trv.cloud:9090/mpops/hadoop-cli:5.2
+        image: artifactory.tcs.trv.cloud:9090/mpops/hadoop-cli:7.2
         environment:
             - EXTRA_PATH=/app/bin
             - EXTRA_PYTHONPATH=/app/src

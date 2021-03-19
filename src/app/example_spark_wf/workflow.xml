@@ -48,7 +48,15 @@
             <arg>--app-name=${project}-${user}</arg>
             <arg>--database=${db}</arg>
             <arg>--crunch-date=${crunchDate}</arg>
-            <archive>${nameNode}/user/${user}/${project}/env.zip#env</archive>
+
+            <!-- Conda environment:
+                 You can choose between using the default Conda environment (default)
+                 or to use your own created with 'deploy-env'. In this second case,
+                 comment out the first <archive> line and uncomment the second one:
+            -->
+            <archive>${nameNode}/user/mpops-prod/conda-envs/scaffolding-1.0.tar.gz#env</archive>
+            <!-- <archive>${nameNode}/user/${user}/${project}/env.tar.gz#env</archive> -->
+
         </spark>
         <ok to="email_succeed" />
         <error to="email_then_kill" />
