@@ -32,8 +32,8 @@
                 <!-- add jars to be able to query gobblin_streams -->
                 --jars hdfs:///user/kafka/lib/hive_aux_jars/protobuf-serde-sharelib-all.jar,hdfs:///user/kafka/lib/hive_aux_jars/protobuf-build-sharelib-all.jar
                 <!-- use the custom Python interpreter of the environment -->
-                --conf spark.yarn.appMasterEnv.PYSPARK_PYTHON=./env/bin/python3
-                --conf spark.executorEnv.PYSPARK_PYTHON=./env/bin/python3
+                --conf spark.yarn.appMasterEnv.PYSPARK_PYTHON=./env/bin/python3.7
+                --conf spark.executorEnv.PYSPARK_PYTHON=./env/bin/python3.7
                 <!-- configure PyArrow to work with the cluster -->
                 --conf spark.sql.execution.arrow.enabled=true
                 --conf spark.yarn.appMasterEnv.ARROW_PRE_0_15_IPC_FORMAT=1

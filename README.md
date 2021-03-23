@@ -71,7 +71,7 @@ app/
 │   ├── default.properties        # job.properties is created by merging `default.properties` and
 │   ├── <user>.properties         # `<user>.properties` (if it exists). `<user>` is the keytab user.
 │   └── env
-│       └── requirements.txt      # Python dependencies of your application (always provide exact versions)
+│       └── environment.yml       # Python dependencies of your application (always provide exact versions)
 └── src                           # your application source code
     ├── app
     │   ├── <workflow-1>          # a workflow directory
@@ -93,7 +93,7 @@ The two example workflows provided are:
 * `example_spark_wf`: writes timestamp in the one-column table
   `<user>_scaffolding.ticker` table every time it is executed.
 
-Of course, you can just delete them and write your own. They are there just as
+Of course, you can just delete them and write your own. They are just
 examples.
 
 **Note**: The philosophy behind this structure is that you keep workflows
@@ -112,7 +112,7 @@ Inside the container you have the following main commands:
 * `db-init`: initialize the database in a user space
 * `deploy-src`: package and deploy your code
 * `deploy-env`: deploy the Conda environment to HDFS (it will create it first if
-  it doesn't exist.
+  it doesn't exist).
 * `submit`: run your workflow
 
 With those, you can initialize your project's database, deploy your
@@ -270,32 +270,54 @@ when it comes to specify your dependencies:
 
 To create your own Conda environment, you can specify the dependencies in the
 `requirements.txt` file inside the repository:
-```
-conf/env/requirements.txt
-```
+
+    conf/env/environment.yml
 At the bare minimum, you have to specify these two inside it:
-```
-python==3.7.4
-pyspark==2.4.3
-```
+
+    dependencies:
+      - python=3.7.4
+      - pyspark=2.4.3
+
 But you can also add any Python package that you want to use. For example, if
-you want to use pandas, your `requirements.txt` file can look like this one:
-```
-python==3.7.4
-pyspark==2.4.3
-pandas==1.2.3
-```
+you want to use pandas, your `environment.yml` file can look like this one:
+
+    dependencies:
+      - python=3.7.4
+      - pyspark=2.4.3
+      - pandas=1.2.3
+
+If you would like to include a package that can only be installed through pip,
+you can use:
+
+    dependencies:
+      - python=3.7.4
+      - pyspark=2.4.3
+      - pandas=1.2.3
+      - pip:
+        - <specific_pip_package>==<version>
+
+If you want to add a private package that is, for example, present at trivago
+artifactory, you can use:
+
+    dependencies:
+      - python=3.7.4
+      - pyspark=2.4.3
+      - pandas=1.2.3
+      - pip:
+        - --extra-index-url https://artifactory.tcs.trv.cloud/artifactory/api/pypi/pypi-local/simple
+        - <your_package_name>==<version>
+
 Remember to always specify the exact version you want to use to prevent the
 workflow breaking because of changes in the dependencies.
 
-Once you have your requirements file ready, you can execute:
-```
-deploy-env
-```
+Once you have your environment file ready, you can execute:
+
+    deploy-env
+
 This will create a Conda environment and place it at:
-```
-/user/<user>/<project>/env.tar.gz
-```
+
+    /user/<user>/<project>/env.tar.gz
+
 so it will be available for all your Spark workflows.
 
 Finally, you have to tell your `workflow.xml` to use it by adding this line:
@@ -307,7 +329,7 @@ Check `src/app/example_spark_wf/workflow.xml` as an example.
 **Important**: executing `deploy-env` takes some time because the generated
 Conda environment is a big file, notice however that you only have to use it if
 you have Spark workflows and only when you change your dependencies in your
-`requirements.txt` file. If you don't change your dependencies, you can deploy
+`environment.yml` file. If you don't change your dependencies, you can deploy
 the environment only once and just do `deploy-src` when you change your code.
 
 ## deploy-src
@@ -330,18 +352,18 @@ The command does four things:
 ### The command
 
 To execute the command, you just have to type:
-```
-deploy-src
-```
+
+    deploy-src
+
 You'll see some output with the logs for the steps outlined above. Make sure you
 read the next sections on how to configure your project for this command to work
 correctly.
 
 After the execution, your project will look like:
-```
-/user/<user>/<project>/src/
-/user/<user>/<project>/src.zip
-```
+
+    /user/<user>/<project>/src/
+    /user/<user>/<project>/src.zip
+
 
 **Important**: Every time that you deploy, the contents of `src/` in HDFS are
 deleted and replaced with the new version of the code. Never make manual changes
@@ -381,14 +403,14 @@ serves as entrypoint of the workflow (the one referred from `workflow.xml`).
 
 **Important**: All the content of `src/` is placed in the `PYTHONPATH`, that
 means that you can import anything inside `src/` like this:
-```
-from app.my_worflow import foo
-from lib.date_utils import bar
-```
+
+    from app.my_worflow import foo
+    from lib.date_utils import bar
+
 
 **Note**: If you have truly generic code, consider moving it to an actual
 Python package instead of having it stored in `lib/`, and have it listed inside
-your `requirements.txt` file. You can use the `lib/` folder for code that is
+your `environment.yml` file. You can use the `lib/` folder for code that is
 common across several workflows or as a first step before creating a Python
 library when you are working on it very frequently and deploying a separate
 package for every change is too much of a hassle.
@@ -416,23 +438,23 @@ that will override the values in `default.properties` when Scaffolding generates
 the final `job.properties` file.
 
 For example, if the current Kerberos user is `my-team-dev`, the files:
-```
-# default.properties
-variable1=a
-variable2=b
-```
+
+    # default.properties
+    variable1=a
+    variable2=b
+
 and:
-```
-# my-team-dev.properties
-variable2=c
-variable3=d
-```
+
+    # my-team-dev.properties
+    variable2=c
+    variable3=d
+
 will generate the following `job.properties` file during deployment:
-```
-variable1=a
-variable2=c
-variable3=d
-```
+
+    variable1=a
+    variable2=c
+    variable3=d
+
 
 So, in summary, set the default values for your variables inside
 `default.properties` and then add additional properties files for each
