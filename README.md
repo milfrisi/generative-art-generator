@@ -129,14 +129,28 @@ A typical development session using these commands might look like this:
 
 1. Initialize the db with `db-init` (only once or anytime that
    there's a change in the schema of the db)
-2. [Optional] Modify `conf/env/requirements.txt` and run `deploy-env` to package
-   your project dependencies. You only have to do this when the
-   `requirements.txt` file changes
-3. Validate your Oozie files (only once or anytime your Oozie files change)
-4. Work in your code
-5. Deploy your code with `deploy-src`
-6. Execute it with `submit`
-7. Back to 4
+2. Validate your Oozie files (only once or anytime your Oozie files change)
+3. Work in your code
+4. Deploy your code with `deploy-src`
+5. Execute it with `submit`
+6. Back to 4
+
+Optionally, if you're working with a PySpark workflow, you can also create a Conda
+environment that contains all the Python packages your code depends on. By
+default, the example `workflow.xml` provided in the `app/example_spark_wf`
+folder uses a preconfigured Conda environment with just Spark and Pandas. But if you
+need any additional packages, just modify `conf/env/environment.yml` to add
+them, run `deploy-env` (which can take a while, since it will create and copy
+your Conda environment to HDFS) and edit the `worflow.xml` file to specify that
+you want to use this new environment instead of the default one. In the example,
+you do that by commenting one line and un-commenting another:
+
+    <archive>${nameNode}/user/mpops-prod/conda-envs/scaffolding-1.0.tar.gz#env</archive>
+    <!-- <archive>${nameNode}/user/${user}/${project}/env.tar.gz#env</archive> -->
+
+All this is something that you only have to do once, however you'll have to
+re-execute `deploy-env` every time you change your list of dependencies to
+update your environment in HDFS accordingly.
 
 After deploying your project using them, it will look like this:
 ```
