@@ -32,15 +32,15 @@
                 <!-- add jars to be able to query gobblin_streams -->
                 --jars hdfs:///user/kafka/lib/hive_aux_jars/protobuf-serde-sharelib-all.jar,hdfs:///user/kafka/lib/hive_aux_jars/protobuf-build-sharelib-all.jar
                 <!-- use the custom Python interpreter of the environment -->
-                --conf spark.yarn.appMasterEnv.PYSPARK_PYTHON=./env/bin/python3
-                --conf spark.executorEnv.PYSPARK_PYTHON=./env/bin/python3
+                --conf spark.yarn.appMasterEnv.PYSPARK_PYTHON=./env/bin/python3.7
+                --conf spark.executorEnv.PYSPARK_PYTHON=./env/bin/python3.7
                 <!-- configure PyArrow to work with the cluster -->
                 --conf spark.sql.execution.arrow.enabled=true
                 --conf spark.yarn.appMasterEnv.ARROW_PRE_0_15_IPC_FORMAT=1
                 --conf spark.executorEnv.ARROW_PRE_0_15_IPC_FORMAT=1
                 <!-- uncomment for dependencies that use Theano (eg. PyMC3) -->
-                --conf spark.yarn.appMasterEnv.THEANO_FLAGS=base_compiledir=/tmp/
-                --conf spark.executorEnv.THEANO_FLAGS=base_compiledir=/tmp/
+                --conf spark.yarn.appMasterEnv.THEANO_FLAGS="base_compiledir='./.theano',blas.ldflags='-lblas'"
+                --conf spark.executorEnv.THEANO_FLAGS="base_compiledir='/tmp/${wf:user()}/.theano',blas.ldflags='-lblas'"
                 <!-- extra configuration -->
                 --conf spark.sql.autoBroadcastJoinThreshold=-1
                 --conf spark.extraListeners=
@@ -48,7 +48,15 @@
             <arg>--app-name=${project}-${user}</arg>
             <arg>--database=${db}</arg>
             <arg>--crunch-date=${crunchDate}</arg>
-            <archive>${nameNode}/user/${user}/${project}/env.zip#env</archive>
+
+            <!-- Conda environment:
+                 You can choose between using the default Conda environment (default)
+                 or to use your own created with 'deploy-env'. In this second case,
+                 comment out the first <archive> line and uncomment the second one:
+            -->
+            <archive>${nameNode}/user/mpops-prod/conda-envs/scaffolding-1.0.tar.gz#env</archive>
+            <!-- <archive>${nameNode}/user/${user}/${project}/env.tar.gz#env</archive> -->
+
         </spark>
         <ok to="email_succeed" />
         <error to="email_then_kill" />

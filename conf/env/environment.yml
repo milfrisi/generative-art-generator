@@ -1,0 +1,17 @@
+dependencies:
+  - python=3.7.4 
+  - pyspark=2.4.3
+  - pyarrow=3.0
+  - pandas=1.2.3
+  - click=7.1.2
+
+  # you can also add other dependencies that you may need. Eg:
+  # - Theano-PyMC==1.1.2
+  # - pymc3=3.11.1
+  # - scipy==1.6.1
+
+  # To add pypi libraries or to add a package that is only present locally or privately you can use the pip command 
+  #- pip:
+  # - --extra-index-url https://artifactory.tcs.trv.cloud/artifactory/api/pypi/pypi-local/simple
+  # - <package_name>==<version>
+
