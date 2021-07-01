@@ -1,0 +1,17 @@
+ - ti_table not appearing
+ - Quality Assessment
+
+SELECT * FROM adv_reporting_is_prod_cpa_to_profits.predictions
+WHERE 
+    crunch_ymd = 20210201 AND
+    partner_id IN (1756, 2636) AND
+    booking_value_pred > 0
+
+  Check: "Huge mean_cpa"
+
+ - min_cpa has bigger values (low priority)
+
+ - campaign_id round to integer or use other value for NaN
+
+ - Create sanity checks for the project
+
