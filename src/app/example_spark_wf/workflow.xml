@@ -25,10 +25,10 @@
             <master>yarn</master>
             <mode>cluster</mode>
             <name>${project}-${user}</name>
-            <jar>${nameNode}/user/${user}/${project}/src/app/example_spark_wf/run.py</jar>
+            <jar>${nameNode}/user/${user}/${deploy_dir}/src/app/example_spark_wf/run.py</jar>
             <spark-opts>
                 --files ${nameNode}/data/hive/hive-site.xml
-                --py-files pyspark.zip,py4j-0.10.7-src.zip,${nameNode}/user/${user}/${project}/src.zip
+                --py-files pyspark.zip,py4j-0.10.7-src.zip,${nameNode}/user/${user}/${deploy_dir}/src.zip
                 <!-- add jars to be able to query gobblin_streams -->
                 --jars hdfs:///user/kafka/lib/hive_aux_jars/protobuf-serde-sharelib-all.jar,hdfs:///user/kafka/lib/hive_aux_jars/protobuf-build-sharelib-all.jar
                 <!-- use the custom Python interpreter of the environment -->
@@ -55,7 +55,6 @@
                  comment out the first <archive> line and uncomment the second one:
             -->
             <archive>${nameNode}/user/mpops-prod/conda-envs/scaffolding-1.0.tar.gz#env</archive>
-            <!-- <archive>${nameNode}/user/${user}/${project}/env.tar.gz#env</archive> -->
 
         </spark>
         <ok to="email_succeed" />
