@@ -1,4 +1,12 @@
-.DEFAULT_GOAL := run
+.DEFAULT_GOAL := help
+
+.PHONY: help
+help:
+	@echo "Run 'make init' to initialize the local environment"
+	@echo "Run 'make run' to enter the docker environment"
+	@echo "Run 'make deploy-env' to directly deploy the environment"
+	@echo "Run 'make deploy-src' to directly deploy the source"
+
 
 .PHONY: ensure-keytab
 ensure-keytab:
@@ -11,11 +19,6 @@ ifeq (,$(wildcard $(KEYTAB)))
 	@exit 1
 endif
 
-
-.PHONY: help
-help:
-	@echo "Run 'make init' to initialize the local environment"
-	@echo "Run 'make run' to enter the docker environment"
 
 .PHONY: init
 init: set-precommit-hook
