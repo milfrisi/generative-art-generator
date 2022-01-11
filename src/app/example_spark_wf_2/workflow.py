@@ -11,5 +11,5 @@ def workflow(spark, database, ymd):
     timestamp = get_timestamp()
     df = spark.createDataFrame([Row(timestamp=timestamp)])
     df.write.format("hive").mode("append").saveAsTable(f"{database}.ticker")
-    sleep(900)
+    sleep(300)
 

@@ -1,6 +1,6 @@
 
 [tool.scaffolding]
-project = "scaffolding"
+project = "foo"
 db_init_scripts = [
     "db/create_db.sql",
     "src/app/example_spark_wf/tables/ticker.sql",
