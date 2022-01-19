@@ -16,14 +16,14 @@ function validateInput(layerN, layerSize = []) {
   
     if (validateInput(this.layerN, this.layerSize)) {
   
-      for (var i = 0; i < this.layerN; i++) { // iterate LayerN
+      for (var i = 0; i < this.layerN; i++) { // iterate the number of layers
         contents[i] = [];
         for (var j = 0; j < this.layerSize[i]; j++) {
-          contents[i][j] = loadImage(`assets/${i}_${j}.png`); // i=0, j=0, contents[0] = [layer00_0, layer00_1, layer00_2]
+          contents[i][j] = loadImage(`assets/${i}_${j}.png`);
         }
       }
   
     } else {
-      // throw new Error("Teliti lagi!");
+      console.log("Make sure the file names and numbers are correct");
     }
   }

@@ -1,13 +1,17 @@
 /*
-  Developed by:
-  @bandudas
-  @milfrisi
+  Developed by MOOD.
+
+  If you think this project is useful and would like to say thanks, 
+  you can contribute to this Tezos wallet:
+    tz1LVRhCSdGHSL1V7EtqjgoucKPi2hJ1DLnu
+
+  # HOW TO START
   
   Rename your files with this format:
   
   (elements)_(variants).png
   
-  eg:
+  e.g.:
   
   1st element has 4 variants
   2nd element has 3 variants
@@ -41,7 +45,7 @@ layerN = 4;
 // Define variants for each elements
 layerSize = [3,3,3,3];
 
-// Define image orientation ("portrait" or "landscape")
+// Define image orientation ("portrait" or "landscape") for display responsiveness
 imageOrientation = "portrait";
 
 // Define background color in RGB
