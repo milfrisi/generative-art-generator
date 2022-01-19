@@ -1,2 +1,4 @@
-# generative-art-generator
-generator for generative art using p5js
+# Generative-art-generator
+Generator for generative art using p5js
+
+This project is created by MOOD. MOOD are @bandudas & @milfrisi
